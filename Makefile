@@ -12,10 +12,10 @@ FLAGS			= -D F_CPU=16000000UL
 FLAGS			+= -D DEBUG_EN=1
 
 # DEFINE
-PORT			= COM6
-DEVICE			= atmega2560
-PROGRAMMER		= wiring
-BAUD			= 115200
+PORT			= COM4
+DEVICE			= atmega328p
+PROGRAMMER		= arduino
+BAUD			= 57600
 COMPILE			= avr-gcc -Wall -Os -mmcu=$(DEVICE) -std=gnu99
 
 .PHONY: clean upload
