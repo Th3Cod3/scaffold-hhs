@@ -18,7 +18,7 @@ typedef struct
     volatile uint8_t *pPort;
     uint8_t pin;
     uint8_t type;
-} Led;
+} Output;
 
 typedef struct
 {
@@ -27,11 +27,11 @@ typedef struct
     volatile uint8_t *pPort;
     uint8_t pin;
     uint8_t type;
-} Button;
+} Input;
 
-void input_ledMode(Led led, uint8_t mode);
-void input_initLed(Led led);
-void input_initButton(Button button);
-uint8_t input_readButton(Button button);
+void basic_ledMode(Output led, uint8_t mode);
+void basic_initLed(Output led);
+void basic_initButton(Input button);
+uint8_t basic_readButton(Input button);
 
 #endif

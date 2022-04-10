@@ -1,44 +1,72 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include "lib/dcmotor.h"
+#include "lib/encoder.h"
 #include "lib/basicio.h"
 #include "lib/debug.h"
-Led ledRed = {
+
+EncoderInterrupt motor1Encoder = {
+    .pPcmsk = &PCMSK0,
+    .pcmsk = PCINT4,
+    .pcie = PCIE0,
+    .pcif = PCIF0,
+    .encoder = {
+        .pDdr = &DDRB,
+        .pPort = &PORTB,
+        .pin = PB4, // pin D12
+        .type = BUTTON_TYPE_PULLUP
+    }
+};
+
+EncoderInterrupt motor2Encoder = {
+    .pPcmsk = &PCMSK0,
+    .pcmsk = PCINT3,
+    .pcie = PCIE0,
+    .pcif = PCIF0,
+    .encoder = {
+        .pDdr = &DDRB,
+        .pPort = &PORTB,
+        .pin = PB3, // pin D12
+        .type = BUTTON_TYPE_PULLUP
+    }
+};
+
+Output ledRed = {
     .pDdr = &DDRB,
     .pPort = &PORTB,
     .pin = PB1, // pin D9
     .type = LED_TYPE_GROUND,
 };
 
-Led ledGreen = {
+Output ledGreen = {
     .pDdr = &DDRB,
     .pPort = &PORTB,
     .pin = PB0, // pin D8
     .type = LED_TYPE_GROUND,
 };
 
-Led ledYellow1 = {
+Output ledYellow1 = {
     .pDdr = &DDRD,
     .pPort = &PORTD,
     .pin = PD7, // pin D7
     .type = LED_TYPE_GROUND,
 };
 
-Led ledYellow2 = {
+Output ledYellow2 = {
     .pDdr = &DDRD,
     .pPort = &PORTD,
     .pin = PD6, // pin D6
     .type = LED_TYPE_GROUND,
 };
 
-Led ledYellow3 = {
+Output ledYellow3 = {
     .pDdr = &DDRD,
     .pPort = &PORTD,
     .pin = PD5, // pin D5
     .type = LED_TYPE_GROUND,
 };
 
-Button upButton = {
+Input upButton = {
     .pDdr = &DDRD,
     .pPort = &PORTD,
     .pPin = &PIND,
@@ -46,7 +74,7 @@ Button upButton = {
     .type = BUTTON_TYPE_PULLUP,
 };
 
-Button downButton = {
+Input downButton = {
     .pDdr = &DDRB,
     .pPort = &PORTB,
     .pPin = &PINB,
@@ -54,7 +82,7 @@ Button downButton = {
     .type = BUTTON_TYPE_PULLUP,
 };
 
-Button emergencyButton = {
+Input emergencyButton = {
     .pDdr = &DDRB,
     .pPort = &PORTB,
     .pPin = &PINB,
@@ -62,7 +90,7 @@ Button emergencyButton = {
     .type = BUTTON_TYPE_PULLUP,
 };
 
-Button selectButton1 = {
+Input selectButton1 = {
     .pDdr = &DDRD,
     .pPort = &PORTD,
     .pPin = &PIND,
@@ -70,7 +98,7 @@ Button selectButton1 = {
     .type = BUTTON_TYPE_PULLUP,
 };
 
-Button selectButton2 = {
+Input selectButton2 = {
     .pDdr = &DDRD,
     .pPort = &PORTD,
     .pPin = &PIND,
@@ -104,49 +132,54 @@ DcMotor motor2 = {
     .limitA = PC1, // pin A1
 };
 
+ISR(PCINT0_vect) {
+    encoder_count(motor1Encoder, 1);
+    encoder_count(motor2Encoder, 1);
+}
+
 void test()
 {
-    if (input_readButton(emergencyButton))
+    if (basic_readButton(emergencyButton))
     {
         dcmotor_instruction(motor1, DCMOTOR_STOP);
-        input_ledMode(ledYellow1, LED_HIGH);
-        input_ledMode(ledRed, LED_LOW);
-        input_ledMode(ledGreen, LED_LOW);
+        basic_ledMode(ledYellow1, LED_HIGH);
+        basic_ledMode(ledRed, LED_LOW);
+        basic_ledMode(ledGreen, LED_LOW);
     }
-    else if (input_readButton(upButton))
+    else if (basic_readButton(upButton))
     {
         dcmotor_instruction(motor1, DCMOTOR_FORWARD);
-        input_ledMode(ledRed, LED_LOW);
-        input_ledMode(ledGreen, LED_HIGH);
+        basic_ledMode(ledRed, LED_LOW);
+        basic_ledMode(ledGreen, LED_HIGH);
     }
-    else if (input_readButton(downButton))
+    else if (basic_readButton(downButton))
     {
         dcmotor_instruction(motor1, DCMOTOR_BACKWARD);
-        input_ledMode(ledRed, LED_HIGH);
-        input_ledMode(ledGreen, LED_LOW);
+        basic_ledMode(ledRed, LED_HIGH);
+        basic_ledMode(ledGreen, LED_LOW);
     }
     else
     {
         dcmotor_instruction(motor1, DCMOTOR_STOP);
-        input_ledMode(ledRed, LED_LOW);
-        input_ledMode(ledGreen, LED_LOW);
-        input_ledMode(ledYellow1, LED_LOW);
+        basic_ledMode(ledRed, LED_LOW);
+        basic_ledMode(ledGreen, LED_LOW);
+        basic_ledMode(ledYellow1, LED_LOW);
     }
 }
 
 int main(void)
 {
 
-    input_initLed(ledRed);
-    input_initLed(ledGreen);
-    input_initLed(ledYellow1);
-    input_initLed(ledYellow2);
-    input_initLed(ledYellow3);
-    input_initButton(upButton);
-    input_initButton(downButton);
-    input_initButton(emergencyButton);
-    input_initButton(selectButton1);
-    input_initButton(selectButton2);
+    basic_initLed(ledRed);
+    basic_initLed(ledGreen);
+    basic_initLed(ledYellow1);
+    basic_initLed(ledYellow2);
+    basic_initLed(ledYellow3);
+    basic_initButton(upButton);
+    basic_initButton(downButton);
+    basic_initButton(emergencyButton);
+    basic_initButton(selectButton1);
+    basic_initButton(selectButton2);
 
     dcmotor_init(motor1);
     dcmotor_init(motor2);

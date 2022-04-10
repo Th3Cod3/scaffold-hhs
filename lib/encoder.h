@@ -2,6 +2,7 @@
 #define ENCODER_H
 
 #include <inttypes.h>
+#include "basicio.h"
 
 #define ENCODER_STATE_UNKNOWN 0
 #define ENCODER_STATE_NONE 1
@@ -10,14 +11,18 @@
 
 typedef struct
 {
-    volatile uint8_t *pDdrA;
-    volatile uint8_t *pPortA;
-    volatile uint8_t *pPinA;
-    uint8_t pinA;
-} Encoder;
+    unsigned long counter;
+    volatile uint8_t *pPcmsk;
+    uint8_t pcmsk;
+    uint8_t pcie;
+    uint8_t pcif;
+    uint8_t state;
+    uint8_t lastState;
+    Input encoder;
+} EncoderInterrupt;
 
-uint8_t encoder_read(Encoder encoder);
+void encoder_count(EncoderInterrupt encoder, uint8_t direction);
 
-void encoder_init(Encoder encoder);
+void encoder_init(EncoderInterrupt encoder);
 
 #endif

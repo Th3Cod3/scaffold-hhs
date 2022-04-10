@@ -12,10 +12,11 @@ FLAGS			= -D F_CPU=16000000UL
 FLAGS			+= -D DEBUG_EN=1
 
 # DEFINE
-PORT			= COM4
+PORT			= COM3
 DEVICE			= atmega328p
 PROGRAMMER		= arduino
-BAUD			= 57600
+#BAUD			= 57600
+BAUD			= 115200
 COMPILE			= avr-gcc -Wall -Os -mmcu=$(DEVICE) -std=gnu99
 
 .PHONY: clean upload
