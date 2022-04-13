@@ -158,6 +158,27 @@ ISR(PCINT0_vect)
     encoder_count(leftMotorEncoder, 1);
 }
 
+void motorSelector(int instruction)
+{
+    if (!basic_readInput(rightButton))
+    {
+        dcmotor_instruction(rightMotor, instruction);
+    }
+    else
+    {
+        dcmotor_instruction(rightMotor, DCMOTOR_STOP);
+    }
+
+    if (!basic_readInput(leftButton))
+    {
+        dcmotor_instruction(leftMotor, instruction);
+    }
+    else
+    {
+        dcmotor_instruction(leftMotor, DCMOTOR_STOP);
+    }
+}
+
 int main(void)
 {
     basic_initOutput(ledRed);
@@ -178,6 +199,30 @@ int main(void)
 
     while (1)
     {
-
+        if (!basic_readInput(emergencyButton))
+        {
+            motorSelector(DCMOTOR_STOP);
+            basic_outputMode(ledRed, HIGH);
+            basic_outputMode(ledGreen, LOW);
+        }
+        else if (basic_readInput(upButton))
+        {
+            basic_outputMode(ledRed, LOW);
+            basic_outputMode(ledGreen, HIGH);
+            motorSelector(DCMOTOR_FORWARD);
+        }
+        else if (basic_readInput(downButton))
+        {
+            basic_outputMode(ledRed, LOW);
+            basic_outputMode(ledGreen, HIGH);
+            motorSelector(DCMOTOR_BACKWARD);
+        }
+        else
+        {
+            basic_outputMode(ledRed, LOW);
+            basic_outputMode(ledGreen, HIGH);
+            dcmotor_instruction(leftMotor, DCMOTOR_STOP);
+            dcmotor_instruction(rightMotor, DCMOTOR_STOP);
+        }
     }
 }
