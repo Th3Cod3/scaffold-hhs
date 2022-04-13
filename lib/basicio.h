@@ -12,6 +12,9 @@
 #define LED_LOW 0
 #define LED_HIGH 1
 
+#define LOW 0
+#define HIGH 1
+
 typedef struct
 {
     volatile uint8_t *pDdr;
@@ -29,9 +32,9 @@ typedef struct
     uint8_t type;
 } Input;
 
-void basic_ledMode(Output led, uint8_t mode);
-void basic_initLed(Output led);
-void basic_initButton(Input button);
-uint8_t basic_readButton(Input button);
+void basic_outputMode(Output output, uint8_t mode);
+void basic_initOutput(Output output);
+void basic_initInput(Input input);
+uint8_t basic_readInput(Input output);
 
 #endif

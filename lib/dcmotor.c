@@ -1,15 +1,5 @@
-/*
-dcmotor lib 0x01
-
-copyright (c) Davide Gironi, 2012
-
-Released under GPLv3.
-Please refer to LICENSE file for licensing information.
-
-Modify by Yefri Gonzalez (Th3Cod3)
-*/
-
 #include <avr/io.h>
+#include "basicio.h"
 #include "dcmotor.h"
 
 void dcmotor_instruction(DcMotor motor, char instruction)
@@ -21,18 +11,18 @@ void dcmotor_instruction(DcMotor motor, char instruction)
     switch (instruction)
     {
     case DCMOTOR_FORWARD:
-        *motor.pPortA |= _BV(motor.pinA);
-        *motor.pPortB &= ~_BV(motor.pinB);
+        basic_outputMode(motor.pinA, HIGH);
+        basic_outputMode(motor.pinB, LOW);
         return;
 
     case DCMOTOR_BACKWARD:
-        *motor.pPortA &= ~_BV(motor.pinA);
-        *motor.pPortB |= _BV(motor.pinB);
+        basic_outputMode(motor.pinA, LOW);
+        basic_outputMode(motor.pinB, HIGH);
         return;
 
     case DCMOTOR_STOP:
-        *motor.pPortA &= ~_BV(motor.pinA);
-        *motor.pPortB &= ~_BV(motor.pinB);
+        basic_outputMode(motor.pinA, LOW);
+        basic_outputMode(motor.pinB, LOW);
         return;
     }
 }
@@ -42,14 +32,13 @@ void dcmotor_instruction(DcMotor motor, char instruction)
  */
 void dcmotor_init(DcMotor motor)
 {
-    *motor.pDdrA |= _BV(motor.pinA);         // OUTPUT
-    *motor.pDdrB |= _BV(motor.pinB);         // OUTPUT
-    *motor.pDdrLimitA &= ~_BV(motor.limitA); // INPUT
-    *motor.pPortLimitA |= _BV(motor.limitA); // PULLUP
+    basic_initInput(motor.limit);
+    basic_initOutput(motor.pinA);
+    basic_initOutput(motor.pinB);
     dcmotor_instruction(motor, DCMOTOR_STOP);
 }
 
 uint8_t dcmotor_end_limit(DcMotor motor)
 {
-    return !(*motor.pPinLimitA & _BV(motor.limitA));
+    return basic_readInput(motor.limit);
 }

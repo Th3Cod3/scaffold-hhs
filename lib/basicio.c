@@ -1,38 +1,38 @@
 #include <avr/io.h>
 #include "basicio.h"
 
-void basic_ledMode(Output led, uint8_t mode)
+void basic_outputMode(Output output, uint8_t mode)
 {
-    if (mode == LED_HIGH && led.type == LED_TYPE_GROUND) {
-        *led.pPort |= _BV(led.pin);
-    } else if (mode == LED_HIGH && led.type == LED_TYPE_VCC) {
-        *led.pPort &= ~_BV(led.pin);
-    } else if (mode == LED_LOW && led.type == LED_TYPE_GROUND) {
-        *led.pPort &= ~_BV(led.pin);
-    } else if (mode == LED_LOW && led.type == LED_TYPE_VCC) {
-        *led.pPort |= _BV(led.pin);
+    if (mode == LED_HIGH && output.type == LED_TYPE_GROUND) {
+        *output.pPort |= _BV(output.pin);
+    } else if (mode == LED_HIGH && output.type == LED_TYPE_VCC) {
+        *output.pPort &= ~_BV(output.pin);
+    } else if (mode == LED_LOW && output.type == LED_TYPE_GROUND) {
+        *output.pPort &= ~_BV(output.pin);
+    } else if (mode == LED_LOW && output.type == LED_TYPE_VCC) {
+        *output.pPort |= _BV(output.pin);
     }
 }
 
-void basic_initLed(Output led)
+void basic_initOutput(Output output)
 {
-    *led.pDdr |= _BV(led.pin); // INPUT
+    *output.pDdr |= _BV(output.pin); // INPUT
 }
 
-void basic_initButton(Input button) {
-    *button.pDdr &= ~_BV(button.pin); // INPUT
+void basic_initInput(Input input) {
+    *input.pDdr &= ~_BV(input.pin); // INPUT
 
-    if (button.type == BUTTON_TYPE_PULLUP) {
-        *button.pPort |= _BV(button.pin); // PULLUP
-    } else if (button.type == BUTTON_TYPE_PULLDOWN) {
-        *button.pPort &= ~_BV(button.pin); // PULLDOWN
+    if (input.type == BUTTON_TYPE_PULLUP) {
+        *input.pPort |= _BV(input.pin); // PULLUP
+    } else if (input.type == BUTTON_TYPE_PULLDOWN) {
+        *input.pPort &= ~_BV(input.pin); // PULLDOWN
     }
 }
 
-uint8_t basic_readButton(Input button) {
-    if (button.type == BUTTON_TYPE_PULLUP) {
-        return !(*button.pPin & _BV(button.pin));
+uint8_t basic_readInput(Input input) {
+    if (input.type == BUTTON_TYPE_PULLUP) {
+        return !(*input.pPin & _BV(input.pin));
     }
 
-    return (*button.pPin & _BV(button.pin));
+    return (*input.pPin & _BV(input.pin));
 }

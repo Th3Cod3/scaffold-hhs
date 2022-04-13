@@ -5,7 +5,7 @@
 
 void encoder_count(EncoderInterrupt encoder, uint8_t direction)
 {
-    encoder.state = basic_readButton(encoder.encoder)
+    encoder.state = basic_readInput(encoder.encoder)
                         ? ENCODER_STATE_HIGH
                         : ENCODER_STATE_LOW;
 
@@ -29,7 +29,7 @@ void encoder_count(EncoderInterrupt encoder, uint8_t direction)
  */
 void encoder_init(EncoderInterrupt encoder)
 {
-    basic_initButton(encoder.encoder);
+    basic_initInput(encoder.encoder);
     *encoder.pPcmsk |= _BV(encoder.pcmsk);
     PCICR |= _BV(encoder.pcie);
     PCIFR |= _BV(encoder.pcif);

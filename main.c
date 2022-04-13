@@ -5,30 +5,32 @@
 #include "lib/basicio.h"
 #include "lib/debug.h"
 
-EncoderInterrupt motor1Encoder = {
+EncoderInterrupt rightMotorEncoder = {
     .pPcmsk = &PCMSK0,
     .pcmsk = PCINT4,
     .pcie = PCIE0,
     .pcif = PCIF0,
     .encoder = {
-        .pDdr = &DDRB,
-        .pPort = &PORTB,
-        .pin = PB4, // pin D12
-        .type = BUTTON_TYPE_PULLUP
-    }
+        .pDdr = &DDRC,
+        .pPort = &PORTC,
+        .pPin = &PINC,
+        .pin = PC0, // pin A0
+        .type = LED_TYPE_GROUND,
+    },
 };
 
-EncoderInterrupt motor2Encoder = {
+EncoderInterrupt leftMotorEncoder = {
     .pPcmsk = &PCMSK0,
     .pcmsk = PCINT3,
     .pcie = PCIE0,
     .pcif = PCIF0,
     .encoder = {
-        .pDdr = &DDRB,
-        .pPort = &PORTB,
-        .pin = PB3, // pin D12
-        .type = BUTTON_TYPE_PULLUP
-    }
+        .pDdr = &DDRC,
+        .pPort = &PORTC,
+        .pPin = &PINC,
+        .pin = PC1, // pin A1
+        .type = LED_TYPE_GROUND,
+    },
 };
 
 Output ledRed = {
@@ -38,28 +40,28 @@ Output ledRed = {
     .type = LED_TYPE_GROUND,
 };
 
-Output ledGreen = {
+Output ledYellow1 = {
     .pDdr = &DDRB,
     .pPort = &PORTB,
     .pin = PB0, // pin D8
     .type = LED_TYPE_GROUND,
 };
 
-Output ledYellow1 = {
+Output ledYellow2 = {
     .pDdr = &DDRD,
     .pPort = &PORTD,
     .pin = PD7, // pin D7
     .type = LED_TYPE_GROUND,
 };
 
-Output ledYellow2 = {
+Output ledYellow3 = {
     .pDdr = &DDRD,
     .pPort = &PORTD,
     .pin = PD6, // pin D6
     .type = LED_TYPE_GROUND,
 };
 
-Output ledYellow3 = {
+Output ledGreen = {
     .pDdr = &DDRD,
     .pPort = &PORTD,
     .pin = PD5, // pin D5
@@ -90,7 +92,7 @@ Input emergencyButton = {
     .type = BUTTON_TYPE_PULLUP,
 };
 
-Input selectButton1 = {
+Input rightButton = {
     .pDdr = &DDRD,
     .pPort = &PORTD,
     .pPin = &PIND,
@@ -98,7 +100,7 @@ Input selectButton1 = {
     .type = BUTTON_TYPE_PULLUP,
 };
 
-Input selectButton2 = {
+Input leftButton = {
     .pDdr = &DDRD,
     .pPort = &PORTD,
     .pPin = &PIND,
@@ -106,86 +108,76 @@ Input selectButton2 = {
     .type = BUTTON_TYPE_PULLUP,
 };
 
-DcMotor motor1 = {
-    .pDdrA = &DDRC,
-    .pDdrB = &DDRC,
-    .pPortA = &PORTC,
-    .pPortB = &PORTC,
-    .pinA = PC2, // pin A2
-    .pinB = PC3, // pin A3
-    .pDdrLimitA = &DDRC,
-    .pPortLimitA = &PORTC,
-    .pPinLimitA = &PINC,
-    .limitA = PC0, // pin A0
+DcMotor rightMotor = {
+    .pinA = {
+        .pDdr = &DDRC,
+        .pPort = &PORTC,
+        .pin = PC2, // pin A2
+        .type = LED_TYPE_GROUND,
+    },
+    .pinB = {
+        .pDdr = &DDRC,
+        .pPort = &PORTC,
+        .pin = PC3, // pin A3
+        .type = LED_TYPE_GROUND,
+    },
+    .limit = {
+        .pDdr = &DDRB,
+        .pPort = &PORTB,
+        .pPin = &PINB,
+        .pin = PB4, // pin D12
+        .type = BUTTON_TYPE_PULLUP,
+    },
 };
 
-DcMotor motor2 = {
-    .pDdrA = &DDRC,
-    .pDdrB = &DDRC,
-    .pPortA = &PORTC,
-    .pPortB = &PORTC,
-    .pinA = PC4, // pin A4
-    .pinB = PC5, // pin A5
-    .pDdrLimitA = &DDRC,
-    .pPortLimitA = &PORTC,
-    .pPinLimitA = &PINC,
-    .limitA = PC1, // pin A1
+DcMotor leftMotor = {
+    .pinA = {
+        .pDdr = &DDRC,
+        .pPort = &PORTC,
+        .pin = PC4, // pin A4
+        .type = LED_TYPE_GROUND,
+    },
+    .pinB = {
+        .pDdr = &DDRC,
+        .pPort = &PORTC,
+        .pin = PC5, // pin A5
+        .type = LED_TYPE_GROUND,
+    },
+    .limit = {
+        .pDdr = &DDRB,
+        .pPort = &PORTB,
+        .pPin = &PINB,
+        .pin = PB3, // pin D11
+        .type = BUTTON_TYPE_PULLUP,
+    },
 };
 
-ISR(PCINT0_vect) {
-    encoder_count(motor1Encoder, 1);
-    encoder_count(motor2Encoder, 1);
-}
-
-void test()
+ISR(PCINT0_vect)
 {
-    if (basic_readButton(emergencyButton))
-    {
-        dcmotor_instruction(motor1, DCMOTOR_STOP);
-        basic_ledMode(ledYellow1, LED_HIGH);
-        basic_ledMode(ledRed, LED_LOW);
-        basic_ledMode(ledGreen, LED_LOW);
-    }
-    else if (basic_readButton(upButton))
-    {
-        dcmotor_instruction(motor1, DCMOTOR_FORWARD);
-        basic_ledMode(ledRed, LED_LOW);
-        basic_ledMode(ledGreen, LED_HIGH);
-    }
-    else if (basic_readButton(downButton))
-    {
-        dcmotor_instruction(motor1, DCMOTOR_BACKWARD);
-        basic_ledMode(ledRed, LED_HIGH);
-        basic_ledMode(ledGreen, LED_LOW);
-    }
-    else
-    {
-        dcmotor_instruction(motor1, DCMOTOR_STOP);
-        basic_ledMode(ledRed, LED_LOW);
-        basic_ledMode(ledGreen, LED_LOW);
-        basic_ledMode(ledYellow1, LED_LOW);
-    }
+    encoder_count(rightMotorEncoder, 1);
+    encoder_count(leftMotorEncoder, 1);
 }
 
 int main(void)
 {
+    basic_initOutput(ledRed);
+    basic_initOutput(ledGreen);
+    basic_initOutput(ledYellow1);
+    basic_initOutput(ledYellow2);
+    basic_initOutput(ledYellow3);
+    basic_initInput(upButton);
+    basic_initInput(downButton);
+    basic_initInput(emergencyButton);
+    basic_initInput(rightButton);
+    basic_initInput(leftButton);
+    encoder_init(rightMotorEncoder);
+    encoder_init(leftMotorEncoder);
 
-    basic_initLed(ledRed);
-    basic_initLed(ledGreen);
-    basic_initLed(ledYellow1);
-    basic_initLed(ledYellow2);
-    basic_initLed(ledYellow3);
-    basic_initButton(upButton);
-    basic_initButton(downButton);
-    basic_initButton(emergencyButton);
-    basic_initButton(selectButton1);
-    basic_initButton(selectButton2);
-
-    dcmotor_init(motor1);
-    dcmotor_init(motor2);
+    dcmotor_init(rightMotor);
+    dcmotor_init(leftMotor);
 
     while (1)
     {
-        test();
+
     }
 }
